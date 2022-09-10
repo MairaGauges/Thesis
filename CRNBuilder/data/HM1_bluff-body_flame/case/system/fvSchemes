@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+	default         steadyState;
+}
+
+gradSchemes
+{
+	default         Gauss linear;
+}
+
+divSchemes
+{
+	default none;
+
+	// First-order upwind
+	div(phi,U)          bounded Gauss upwind;
+	div(phi,epsilon)    bounded Gauss upwind;
+	div(phi,k)          bounded Gauss upwind;
+	div(phiU,p)         bounded Gauss upwind;
+
+	div(phi,enthalpy)   bounded Gauss upwind;
+	div(phi,Z)          bounded Gauss upwind;
+	div(phi,Zvar)       bounded Gauss upwind;
+
+	div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+
+	// Second-order discretization
+	/*
+	div(phi,U)      	bounded Gauss limitedLinearV 1;
+	div(phi,epsilon) 	bounded Gauss limitedLinear  1;
+	div(phi,k)      	bounded Gauss limitedLinear  1;
+	div(phiU,p)		bounded Gauss limitedLinear  1;
+
+	div(phi,enthalpy)      	bounded Gauss limitedLinear  1;
+	div(phi,Z)    		bounded Gauss limitedLimitedLinear 1 0 1;
+	div(phi,Zvar)      	bounded Gauss limitedLimitedLinear 1 0 0.25;
+
+	div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+	*/
+}
+
+laplacianSchemes
+{
+	default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+	default         linear;
+}
+
+snGradSchemes
+{
+	default         corrected;
+}
+
+// ************************************************************************* //
