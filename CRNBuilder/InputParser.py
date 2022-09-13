@@ -46,8 +46,7 @@ def parse_input(filename):
                 inlet_data[0] = 3
             else:
                 raise RuntimeError(f"{inlet_data[0]} is not a valid inlet argument. Valid arguments are 'south', 'west', 'north' and 'east'")
-            inlet_data[1] = float(inlet_data[1])
-            inlet_data[2] = float(inlet_data[2])
+            inlet_data[1] = float(inlet_data[1])    #inlet_data[1] is coordinate of where inlet starts, inlet_data[2] where it ends - depending on location x or y coordinates --> if at south then x-coordinates given
             print(f"Found inlet named {inlet_name}")
         elif command == 'Outlets':
             all_set[1] = True

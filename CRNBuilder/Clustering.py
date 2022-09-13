@@ -257,7 +257,7 @@ class Cluster:
 
     def get_target_under_threshold(self):
         self.target = None
-        if self.max_s > self.cl_map.threshold:
+        if self.max_s > self.cl_map.threshold:          #cl_map is object of type clusterMap, threshold is the threshold temp given in input file, but here normalized, max_s is maximum temp in cluster (could be multiple cells)
             return
         for n in self.neighbors:
             if n.max_s <= self.cl_map.threshold:
@@ -330,7 +330,7 @@ class ClusterMap:
                     self.clusters[i * Nz + j].neighbors.append(self.clusters[i * Nz + (j - 1)])
                 if j < Nz - 1 and eddy_id[i, j] == eddy_id[i, j + 1]:
                     self.clusters[i * Nz + j].neighbors.append(self.clusters[i * Nz + (j + 1)])
-        self.n_clusters = n_clusters
+        self.n_clusters = n_clusters            #objective number of clusters
         self.threshold = threshold
 
     def merge_from_cache(self, cluster_id):
@@ -361,15 +361,19 @@ class ClusterMap:
         for cluster in self.clusters:
             if cluster.empty:
                 continue
-            cluster.clean_neighbors()
+            cluster.clean_neighbors()                #removes emoty clusters from neighbors list
             cluster.get_target_under_threshold()
+            '''returns nothing if max temp over threshold, 
+                      if cluster max temp is below threshold the first neighbor that is found that has a temp below the threshold temp is is set as target of that cluster
+                      --> for every cluster in the map that is not empty a target is set
+                      '''
         all_None = True
         for cluster in self.clusters:
-            if cluster.empty or (cluster.target is None) or cluster.target.empty:
+            if cluster.empty or (cluster.target is None) or cluster.target.empty:           #skipt to next cluster if the cluster is emoty, the target cluste ris empt or no target cluster exists for the current cluster
                 continue
             all_None = False
             cluster.merge(cluster.target)
-        return all_None
+        return all_None             #all_None is only true if no non-empty cluster do not have a target
 
     def find_and_merge(self):
         """
@@ -378,24 +382,24 @@ class ClusterMap:
         :return: None
         """
         # Reset clusters, clean them and prepare them for the algorithm
-        for cluster in self.clusters:
-            if cluster.empty:
+        for cluster in self.clusters:               #iterating through all nonempty clusters
+            if cluster.empty:                       #empty is an attribute of clusters (empty when no cells are part of this cluster)
                 continue
-            cluster.reset_min_diff()
-            cluster.clean_neighbors()
-            cluster.get_min_diff()
+            cluster.reset_min_diff()                #min_diff is set to infinity
+            cluster.clean_neighbors()               #empty list from empty clusters
+            cluster.get_min_diff()                  #target is set for cluster, finding neighbor with smallest distance
         # Create the difference array and search for the clusters to merge
-        diff = np.array([cluster.min_diff for cluster in self.clusters], dtype=float)
-        if self.get_cluster_number() > self.n_clusters * 10:
-            min_indices = np.flatnonzero(diff <= diff.min() * (1 + self.epsilon))
+        diff = np.array([cluster.min_diff for cluster in self.clusters], dtype=float)       #arrax with all distances, for empty clusters min_diff was set to infinity when they were cleared
+        if self.get_cluster_number() > self.n_clusters * 10:                                #number of clusters is still more than 10 times as high as objective
+            min_indices = np.flatnonzero(diff <= diff.min() * (1 + self.epsilon))           #returns array with indices of the values in diff that are below or eual to (1+epsilon)*min distance ind diff
         else:
-            min_indices = np.flatnonzero(diff <= diff.min())
+            min_indices = np.flatnonzero(diff <= diff.min())                                #returns array with indices of the values in diff that are below or equal to min value in diff
         # Cycle through the clusters to be merged
         for index in min_indices:
             # Check if the cluster still exists
             if self.clusters[index].empty or (self.clusters[index].target is None) or self.clusters[index].target.empty:
                 continue
-            self.clusters[index].merge(self.clusters[index].target)
+            self.clusters[index].merge(self.clusters[index].target)         #merging cluster with target
 
     def cut(self, y, z, max_ratio=0.3):
         """
@@ -507,6 +511,7 @@ def get_n_cl_cache(path: str, n_clusters: int):
     :param n_clusters: Objective number of clusters
     :return: lowest number of clusters present in the cache still above the objective number
     """
+
     n_cl_cache = -1
     for file in os.listdir(path):
         if len(file.split("_")) > 2:
@@ -562,10 +567,10 @@ def cluster_data_linkage(case_name: str, Ny: int, Nz: int,
     z = z.copy()
     z = normalize(z)
 
-    # Initialize the cluster map that will operate the clustering
+    # Initialize the cluster map that will operate the clustering (initiialized so that each cell is one cluster)
     cluster_map = ClusterMap(Ny, Nz, s, eddy_id, n_clusters, threshold)
 
-    # Maximum number of iteration to avoid infinite loops
+    # Maximum number of iteration to avoid infinite loops, gives number of non-empty clusters
     max_iter = cluster_map.get_cluster_number()
 
     start_time = time()
@@ -590,6 +595,10 @@ def cluster_data_linkage(case_name: str, Ny: int, Nz: int,
                                        f"bug that prevents the algorithm from converging.")
     # Pre-process the case by merging cells with a Temperature less than T_threshold
     for i in range(max_iter):
+        '''
+        -loop is run up until as many times as max_iter(number of cells+1)
+        -runs until all neighboring cells below the thresholdtemp have been merged --> merge_under_threshold() returns true if no non-empty cluster has a target (has a neigbouring cell below threshold temp)
+        '''
         print(f"\r{(initial_number - (cluster_map.get_cluster_number() - n_clusters + 1)) / initial_number * 100:>5.2f}   "
               f"{cluster_map.get_cluster_number():<24} (Pre-processing phase - creating clusters with T < T_treshold)", end="")
         if cluster_map.merge_under_threshold():
@@ -716,6 +725,7 @@ def main():
             djet = cmap_discretize(cm.jet, 5)
             imshow(x, cmap=djet)
         """
+
 
         if type(cmap) == str:
             cmap = plt.get_cmap(cmap)
