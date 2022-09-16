@@ -1,0 +1,158 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale 0.001;
+
+vertices
+(
+    (   99.9048221581858                  0   -4.3619387365336 )  // 0 tunnel_0+z
+    (   99.9048221581858                750   -4.3619387365336 )  // 1 tunnel_1+z
+    (   9.44100569394856                  0 -0.412203210602425 )  // 2 outerwall_0+z
+    (   9.44100569394856                750 -0.412203210602425 )  // 3 outerwall_1+z
+    (   9.09133881639491                  0 -0.396936425024558 )  // 4 pilotinlet_0+z
+    (   9.09133881639491                750 -0.396936425024558 )  // 5 pilotinlet_1+z
+    (   3.84633565309015                  0 -0.167934641356544 )  // 6 innerwall_0+z
+    (   3.84633565309015                750 -0.167934641356544 )  // 7 innerwall_1+z
+    (   3.59657359769469                  0  -0.15702979451521 )  // 8 fuelinlet_0+z
+    (   3.59657359769469                750  -0.15702979451521 )  // 9 fuelinlet_1+z
+    (                  0                  0                  0 )  // 10 origin_0-z : origin_0-z origin_0+z
+    (                  0                750                  0 )  // 11 origin_1-z : origin_1-z origin_1+z
+    (   3.59657359769469                  0   0.15702979451521 )  // 12 fuelinlet_0-z
+    (   3.59657359769469                750   0.15702979451521 )  // 13 fuelinlet_1-z
+    (   3.84633565309015                  0  0.167934641356544 )  // 14 innerwall_0-z
+    (   3.84633565309015                750  0.167934641356544 )  // 15 innerwall_1-z
+    (   9.09133881639491                  0  0.396936425024558 )  // 16 pilotinlet_0-z
+    (   9.09133881639491                750  0.396936425024558 )  // 17 pilotinlet_1-z
+    (   9.44100569394856                  0  0.412203210602425 )  // 18 outerwall_0-z
+    (   9.44100569394856                750  0.412203210602425 )  // 19 outerwall_1-z
+    (   99.9048221581858                  0    4.3619387365336 )  // 20 tunnel_0-z
+    (   99.9048221581858                750    4.3619387365336 )  // 21 tunnel_1-z
+);
+
+edges
+(
+);
+
+blocks
+(
+    hex (10 12 8 10 11 13 9 11) b_fuelinlet (28 1 450) simpleGrading (1 1 3)  // b_fuelinlet (origin_0-z fuelinlet_0-z fuelinlet_0+z origin_0+z origin_1-z fuelinlet_1-z fuelinlet_1+z origin_1+z)
+    hex (12 14 6 8 13 15 7 9) b_innerwall (2 1 450) simpleGrading (1 1 3)  // b_innerwall (fuelinlet_0-z innerwall_0-z innerwall_0+z fuelinlet_0+z fuelinlet_1-z innerwall_1-z innerwall_1+z fuelinlet_1+z)
+    hex (14 16 4 6 15 17 5 7) b_pilotinlet (40 1 450) simpleGrading (1 1 3)  // b_pilotinlet (innerwall_0-z pilotinlet_0-z pilotinlet_0+z innerwall_0+z innerwall_1-z pilotinlet_1-z pilotinlet_1+z innerwall_1+z)
+    hex (16 18 2 4 17 19 3 5) b_outerwall (2 1 450) simpleGrading (1 1 3)  // b_outerwall (pilotinlet_0-z outerwall_0-z outerwall_0+z pilotinlet_0+z pilotinlet_1-z outerwall_1-z outerwall_1+z pilotinlet_1+z)
+    hex (18 20 0 2 19 21 1 3) b_tunnel (180 1 450) simpleGrading (8 1 3)  // b_tunnel (outerwall_0-z tunnel_0-z tunnel_0+z outerwall_0+z outerwall_1-z tunnel_1-z tunnel_1+z outerwall_1+z)
+);
+
+boundary
+(
+    front
+    {
+        type wedge;
+        faces
+        (
+            (10 12 13 11)  // f-b_fuelinlet-s (origin_0-z fuelinlet_0-z fuelinlet_1-z origin_1-z)
+            (12 14 15 13)  // f-b_innerwall-s (fuelinlet_0-z innerwall_0-z innerwall_1-z fuelinlet_1-z)
+            (14 16 17 15)  // f-b_pilotinlet-s (innerwall_0-z pilotinlet_0-z pilotinlet_1-z innerwall_1-z)
+            (16 18 19 17)  // f-b_outerwall-s (pilotinlet_0-z outerwall_0-z outerwall_1-z pilotinlet_1-z)
+            (18 20 21 19)  // f-b_tunnel-s (outerwall_0-z tunnel_0-z tunnel_1-z outerwall_1-z)
+        );
+    }
+    back
+    {
+        type wedge;
+        faces
+        (
+            (8 10 11 9)  // f-b_fuelinlet-n (fuelinlet_0+z origin_0+z origin_1+z fuelinlet_1+z)
+            (6 8 9 7)  // f-b_innerwall-n (innerwall_0+z fuelinlet_0+z fuelinlet_1+z innerwall_1+z)
+            (4 6 7 5)  // f-b_pilotinlet-n (pilotinlet_0+z innerwall_0+z innerwall_1+z pilotinlet_1+z)
+            (2 4 5 3)  // f-b_outerwall-n (outerwall_0+z pilotinlet_0+z pilotinlet_1+z outerwall_1+z)
+            (0 2 3 1)  // f-b_tunnel-n (tunnel_0+z outerwall_0+z outerwall_1+z tunnel_1+z)
+        );
+    }
+    fuelinlet
+    {
+        type patch;
+        faces
+        (
+            (10 10 8 12)  // f-b_fuelinlet-b (origin_0-z origin_0+z fuelinlet_0+z fuelinlet_0-z)
+        );
+    }
+    innerwall
+    {
+        type wall;
+        faces
+        (
+            (12 8 6 14)  // f-b_innerwall-b (fuelinlet_0-z fuelinlet_0+z innerwall_0+z innerwall_0-z)
+        );
+    }
+    pilotinlet
+    {
+        type patch;
+        faces
+        (
+            (14 6 4 16)  // f-b_pilotinlet-b (innerwall_0-z innerwall_0+z pilotinlet_0+z pilotinlet_0-z)
+        );
+    }
+    outerwall
+    {
+        type wall;
+        faces
+        (
+            (16 4 2 18)  // f-b_outerwall-b (pilotinlet_0-z pilotinlet_0+z outerwall_0+z outerwall_0-z)
+        );
+    }
+    airinlet
+    {
+        type patch;
+        faces
+        (
+            (18 2 0 20)  // f-b_tunnel-b (outerwall_0-z outerwall_0+z tunnel_0+z tunnel_0-z)
+        );
+    }
+    leftside
+    {
+        type wall;
+        faces
+        (
+            (20 0 1 21)  // f-b_tunnel-n (tunnel_0-z tunnel_0+z tunnel_1+z tunnel_1-z)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (11 13 9 11)  // f-b_fuelinlet-t (origin_1-z fuelinlet_1-z fuelinlet_1+z origin_1+z)
+            (13 15 7 9)  // f-b_innerwall-t (fuelinlet_1-z innerwall_1-z innerwall_1+z fuelinlet_1+z)
+            (15 17 5 7)  // f-b_pilotinlet-t (innerwall_1-z pilotinlet_1-z pilotinlet_1+z innerwall_1+z)
+            (17 19 3 5)  // f-b_outerwall-t (pilotinlet_1-z outerwall_1-z outerwall_1+z pilotinlet_1+z)
+            (19 21 1 3)  // f-b_tunnel-t (outerwall_1-z tunnel_1-z tunnel_1+z outerwall_1+z)
+        );
+    }
+    axis
+    {
+        type empty;
+        faces
+        (
+            (10 11 11 10)  // f-b_fuelinlet-w (origin_0-z origin_1-z origin_1+z origin_0+z)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

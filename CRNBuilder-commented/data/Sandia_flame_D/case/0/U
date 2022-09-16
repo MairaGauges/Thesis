@@ -1,0 +1,105 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 40 0);
+
+boundaryField
+{
+    fuelinlet
+    {
+        type            fixedProfile;
+        profile         csvFile;
+        profileCoeffs
+        {
+            nHeaderLine     16;
+            refColumn       0;
+            componentColumns (1 2 3);
+            separator       ",";
+            mergeSeparators 0;
+            file            "fuelInletUProfile.csv";
+        }
+        direction       (1 0 0);
+        origin          0;
+    }
+    innerwall
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    pilotinlet
+    {
+        type            fixedProfile;
+        profile         csvFile;
+        profileCoeffs
+        {
+            nHeaderLine     16;
+            refColumn       0;
+            componentColumns (1 2 3);
+            separator       ",";
+            mergeSeparators 0;
+            file            "pilotInletUProfile.csv";
+        }
+        direction       (1 0 0);
+        origin          0;
+    }
+    outerwall
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    airinlet
+    {
+        type            fixedProfile;
+        profile         csvFile;
+        profileCoeffs
+        {
+            nHeaderLine     16;
+            refColumn       0;
+            componentColumns (1 2 3);
+            separator       ",";
+            mergeSeparators 0;
+            file            "airInletUProfile.csv";
+        }
+        direction       (1 0 0);
+        origin          0;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    axis
+    {
+        type            empty;
+    }
+    leftside
+    {
+        type            zeroGradient;
+    }
+    front
+    {
+        type            wedge;
+    }
+    back
+    {
+        type            wedge;
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,94 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          	GAMG;
+        tolerance       	1e-08;
+        relTol          	0.05;
+        smoother        	GaussSeidel;
+        nCellsInCoarsestLevel 	20;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        nSweeps         2;
+        tolerance       1e-06;
+        relTol          1e-3;
+    }
+
+    "(k|epsilon|enthalpy|Z|Zvar)"
+    {
+        $U;
+        tolerance       1e-9;
+        relTol          0.;
+    }
+
+    G
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-5;
+        relTol          0.1;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 	0;
+    pMinFactor      		0.1;
+    pMaxFactor      		2.0;
+
+    residualControl
+    {
+        p               1e-9;
+        U               1e-9;
+        enthalpy        1e-9;
+	Z		1e-9;
+	Zvar		1e-9;
+	G		1e-9;
+
+        // possibly check turbulence fields
+        "(k|epsilon|omega)" 1e-9;
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               	0.5;
+        rho             	0.05;
+    }
+
+    equations
+    {
+        U               	0.5;
+        "(k|epsilon|omega)"   	0.7;
+	Z			0.7;
+	Zvar			0.7;
+	enthalpy		0.7;
+	G			0.7;
+    }
+}
+
+
+// ************************************************************************* //

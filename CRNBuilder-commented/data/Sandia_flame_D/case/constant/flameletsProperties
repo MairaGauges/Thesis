@@ -1,0 +1,59 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      flameletProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+	//- Path to flamelet library
+	libraryPath		"../LookUpTable/library/OutputXML-NonAdiabatic";
+
+	//- Equilibrium mode
+	equilibriumMode		off;
+
+	//- Adiabatic mode
+	adiabaticMode		on;
+
+	//- Transport equation for mixture fraction variance
+	varianceEquation 	on;
+
+	//- Correction exponent (m) for absorption coefficient: as = as*Cc, where Cc = [P(atm)]^(m-1)
+	absorptionCoefficientPressureExp 1;
+
+	//- Equation constants
+	sigmat 		0.85;	// default: 0.85
+	Cg		2.86;	// default: 2.86
+	Cd		2.00;	// default: 2.00
+	Cx		2.00;	// default: 2.00
+
+	//- PDF of scalar dissipation rate: dirac | logNormal
+	pdf 			"dirac";		
+	sigma			1.31;		// scale factor for the log-normal: default 1.31
+
+	//- LookUpTable extraction after <n> iterations or time-steps
+	propertyUpdate			1;
+	massFractionsUpdate		100;
+	species					"CH4 H2O CO2 CO O2 OH O CH2O N2";
+
+	//- Output modes
+	showFlamelet			on;
+	showFlameletLibrary		on;
+	monitoring				off;
+
+	//- Turbulence: k-e model
+	k_small				k_small 		[0 2 -2 0 0 0 0]   1.e-6;
+	epsilon_small		epsilon_small 	[0 2 -3 0 0 0 0]   1.e-6;
+	
+// ************************************************************************* //
+

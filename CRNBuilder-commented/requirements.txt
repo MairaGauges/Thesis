@@ -1,0 +1,5 @@
+matplotlib
+numpy >=1.20
+networkx
+
+scipy  # outdated! but still imported in Clustering.py for some outdated functions
