@@ -1,0 +1,31 @@
+@Inlets
+fuelinlet:  south,  0,      	3.60e-3
+pilotinlet: south,  3.85e-3,	9.10e-3
+airinlet:   south,  9.45e-3,  	100e-3
+leftside:   east,   0,      	750e-3
+//
+
+@Outlets
+outlet:     north,  0,			100e-3
+//
+
+@Dimensions
+min_y:      0
+max_y:      100e-3
+min_z:      0
+max_z:      750e-3
+angle:      5
+//
+
+@OperativeConditions
+pressure:   1
+//
+
+@Geometry
+radial_dir: x
+axial_dir:  y
+//
+
+@Parameters
+T_threshold:    700
+//
