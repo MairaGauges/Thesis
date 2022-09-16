@@ -158,7 +158,7 @@ class CRNOutlet(ReactorNetworkObject):
         self.mass_flowrate = mass_flowrate
         if len(self.outlet) > 0:
             raise RuntimeError(f"Trying to set an outlet to CRNOutlet {self.id_}")
-        print(f"Initialized outlet with {id_ = :d} and {mass_flowrate = :.5e} kg/s")
+        print(f"Initialized outlet with {id_ = :d} and total mass_flowrate{sum(self.mass_flowrate[k ]for k in self.mass_flowrate):.5e} kg/s\n ")
 
     def generate_out_string(self) -> str:
         # Since CRNOutlet objects are not needed in InputCRN.dic, the output string is empty.
@@ -189,7 +189,7 @@ class ChemicalReactorNetwork:
         self.mass_flows = mass_flows
 
         self.generate_inlets(Ny, Nz, y, z, T, my, mz, inlets, cluster_id, boundary_data)
-        self.generate_outlets(Ny, Nz, y, z, outlets, my, mz)
+        self.generate_outlets(Ny, Nz, y, z, outlets, my, mz, cluster_id, n_clusters)
         self.generate_reactors(Ny, Nz, n_clusters, cluster_id, pxr_score, T, axial_n, V, vy, vz, y, z)
         self.generate_splitters()
         self.generate_mixers()
@@ -290,39 +290,52 @@ class ChemicalReactorNetwork:
             print(mass_flowrate)
 
 	    
-    def generate_outlets(self, Ny, Nz, y, z, outlets, my, mz):
-        print('outlets generated')
+    def generate_outlets(self, Ny, Nz, y, z, outlets, my, mz,cluster_id,n_clusters):
+        
+        
         for n in range(len(outlets)):
             lower_bound = outlets[n][1][1]
             upper_bound = outlets[n][1][2]
-            m_tot = 0.
-            if outlets[n][1][0] == 0:
-                for i in range(Ny):
-                    if not lower_bound <= y[i, 0] <= upper_bound:
-                        continue
-                    self.outlet_id[i, 0] = n + 1
-                    m_tot -= mz[i, 0]
-            elif outlets[n][1][0] == 1:
-                for j in range(Nz):
-                    if not lower_bound <= z[0, j] <= upper_bound:
-                        continue
-                    self.outlet_id[0, j] = n + 1
-                    m_tot -= my[0, j]
-            elif outlets[n][1][0] == 2:
-                for i in range(Ny):
-                    if not lower_bound <= y[i, -1] <= upper_bound:
-                        continue
-                    self.outlet_id[i, -1] = n + 1
-                    m_tot += mz[i, -1]
-            elif outlets[n][1][0] == 3:
-                for j in range(Nz):
-                    if not lower_bound <= z[-1, j] <= upper_bound:
-                        continue
-                    self.outlet_id[-1, j] = n + 1
-                    m_tot += my[-1, j]
-            print('massflow at outlet: ')
-            print(m_tot)
-            self.crn_outlets.append(CRNOutlet(n, [], [], m_tot))
+            mass_flowrate={}
+            for r in range(n_clusters):
+                
+                if outlets[n][1][0] == 0:
+                    for i in range(Ny):
+                        if not lower_bound <= y[i, 0] <= upper_bound or r!= cluster_id[i,0]:
+                            continue
+                        self.outlet_id[i, 0] = n + 1
+                        if r not in mass_flowrate:
+                            mass_flowrate[r]=0
+                        mass_flowrate[r]-=mz[i,0]
+                elif outlets[n][1][0] == 1:
+                    for j in range(Nz):
+                        if not lower_bound <= z[0, j] <= upper_bound or r!= cluster_id[0,j]:
+                            continue
+                        self.outlet_id[0, j] = n + 1
+                        if r not in mass_flowrate:
+                            mass_flowrate[r]=0
+                        mass_flowrate[r]-=my[0,j]
+                         
+                elif outlets[n][1][0] == 2:
+                    for i in range(Ny):
+                        if not lower_bound <= y[i, -1] <= upper_bound or r!= cluster_id[i,-1]:
+                            continue
+                        self.outlet_id[i, -1] = n + 1
+                        if r not in mass_flowrate:
+                            mass_flowrate[r]=0
+                        mass_flowrate[r]+=mz[i,-1]
+                elif outlets[n][1][0] == 3:
+                    for j in range(Nz):
+                        if not lower_bound <= z[-1, j] <= upper_bound or r!= cluster_id[-1,j]:
+                            continue
+                        self.outlet_id[-1, j] = n + 1
+                        if r not in mass_flowrate:
+                            mass_flowrate[r]=0
+                        mass_flowrate[r]+=mz[-1,j]
+
+            self.crn_outlets.append(CRNOutlet(n, [], [], mass_flowrate))
+            print('mass_flowrate outlet')
+            print(mass_flowrate)
 
     def generate_reactors(self, Ny, Nz, n_clusters, cluster_id, pxr_score, T, axial_n, V, vy, vz, y, z):
         cluster_volumes = get_cluster_volume(Ny, Nz, V, n_clusters, cluster_id, axial_n)
@@ -442,7 +455,7 @@ class ChemicalReactorNetwork:
                         if isinstance(outlet, Reactor):
                             splitting_ratio.append(self.mass_flows[crn_object.id_, outlet.id_])
                         elif isinstance(outlet, CRNOutlet):
-                            splitting_ratio.append(outlet.mass_flowrate)
+                            splitting_ratio.append(outlet.mass_flowrate[crn_object.id_])
                         else:
                             raise RuntimeError("The reactor outlet is neither a Reactor or a CRNOutlet, check generate_splitters() in object ChemicalReactorNetwork in CRNBuilder.py")
                     elif isinstance(crn_object, CRNInlet):
