@@ -1,0 +1,213 @@
+@GeneralOptions
+SystemPressure 1.0 atm
+TearStream automatic
+//
+
+
+@Reactor       R0
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    845.13 K
+Length         2.04520e-02 m
+Diameter       7.10057e-03 m
+Inlet_stream   8
+Outlet_stream  9
+//
+@Reactor       R1
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    1252.41 K
+Length         6.78630e-02 m
+Diameter       8.89465e-03 m
+Inlet_stream   11
+Outlet_stream  12
+//
+@Reactor       R2
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    1757.00 K
+Length         1.30653e-01 m
+Diameter       3.37511e-02 m
+Inlet_stream   16
+Outlet_stream  33
+//
+@Reactor       R3
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    2051.83 K
+Length         9.42553e-02 m
+Diameter       1.34712e-02 m
+Inlet_stream   17
+Outlet_stream  13
+//
+@Reactor       R4
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    1371.82 K
+Length         9.78386e-02 m
+Diameter       4.13876e-02 m
+Inlet_stream   21
+Outlet_stream  34
+//
+@Reactor       R5
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    873.15 K
+Length         2.82973e-01 m
+Diameter       6.48031e-02 m
+Inlet_stream   24
+Outlet_stream  35
+//
+@Reactor       R6
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    580.44 K
+Length         1.56995e-02 m
+Diameter       5.23072e-03 m
+Inlet_stream   25
+Outlet_stream  6
+//
+@Reactor       R7
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    466.44 K
+Length         9.13462e-04 m
+Diameter       5.23062e-03 m
+Inlet_stream   29
+Outlet_stream  10
+//
+@Reactor       R8
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    944.73 K
+Length         2.62230e-04 m
+Diameter       5.65934e-03 m
+Inlet_stream   30
+Outlet_stream  26
+//
+@Reactor       R9
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    327.73 K
+Length         7.38359e-02 m
+Diameter       6.20553e-01 m
+Inlet_stream   32
+Outlet_stream  36
+//
+@Mixer         M0
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   6,7
+Outlet_stream  8
+//
+@Mixer         M1
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   9,10
+Outlet_stream  11
+//
+@Mixer         M2
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   12,13,14,15
+Outlet_stream  16
+//
+@Mixer         M3
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   18,19,20
+Outlet_stream  21
+//
+@Mixer         M4
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   22,23
+Outlet_stream  24
+//
+@Mixer         M5
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   26,27,28
+Outlet_stream  29
+//
+@Mixer         M6
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   2,3,31
+Outlet_stream  32
+//
+@Splitter      S0
+Inlet_stream   33
+Outlet_stream  17,0.215768480
+               18,0.784231520;
+//
+@Splitter      S1
+Inlet_stream   34
+Outlet_stream  14,0.228577989
+               22,0.771422011;
+//
+@Splitter      S2
+Inlet_stream   35
+Outlet_stream  4,0.143762386
+               19,0.170406108
+               31,0.685831506;
+//
+@Splitter      S3
+Inlet_stream   36
+Outlet_stream  5,0.910472040
+               23,0.089527960;
+//
+@Splitter      S4
+Inlet_stream   0
+Outlet_stream  7,0.454325335
+               25,0.433593642
+               27,0.112081023;
+//
+@Splitter      S5
+Inlet_stream   1
+Outlet_stream  15,0.949990564
+               20,0.018504598
+               28,0.010859400
+               30,0.020645438;
+//
+@Stream        0
+Phase          Gas
+MassFlowRate   7.08154e-06 kg/s
+Temperature    994.01 K
+MassFraction   N2  0.765
+               O2  0.235;
+//
+@Stream        1
+Phase          Gas
+MassFlowRate   7.20476e-06 kg/s
+Temperature    1932.51 K
+MassFraction   N2  0.765
+               O2  0.235;
+//
+@Stream        2
+Phase          Gas
+MassFlowRate   5.20605e-04 kg/s
+Temperature    298.00 K
+MassFraction   N2  0.765
+               O2  0.235;
+//
+@Stream        3
+Phase          Gas
+MassFlowRate   1.06481e-04 kg/s
+Temperature    298.00 K
+MassFraction   N2  0.765
+               O2  0.235;
+//
+
+
+

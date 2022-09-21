@@ -371,7 +371,7 @@ class ClusterMap:
             cluster.merge(cluster.target)
         return all_None
 
-    def find_and_merge(self):
+    def find_and_merge(self,eddy_id):
         """
         Cycle through all the clusters in the grid, search for the ones with the least difference in temperature and
         merge them
@@ -390,12 +390,26 @@ class ClusterMap:
             min_indices = np.flatnonzero(diff <= diff.min() * (1 + self.epsilon))
         else:
             min_indices = np.flatnonzero(diff <= diff.min())
+       
+  
+       
         # Cycle through the clusters to be merged
         for index in min_indices:
             # Check if the cluster still exists
             if self.clusters[index].empty or (self.clusters[index].target is None) or self.clusters[index].target.empty:
                 continue
-            self.clusters[index].merge(self.clusters[index].target)
+
+            merge = True
+            fcell = self.clusters[index].cells[0]
+            eo = eddy_id[fcell[0],fcell[1]]
+            cells2 = self.clusters[index].target.cells
+            for cell in cells2:
+                et = eddy_id[cell[0],cell[1]]
+                if et != eo:
+                    merge = False
+            if merge: 
+                 self.clusters[index].merge(self.clusters[index].target)  
+
 
     def cut(self, y, z, max_ratio=0.3):
         """
@@ -542,7 +556,7 @@ def cluster_data_linkage(case_name: str, Ny: int, Nz: int,
     """
     print("------------- Linkage clustering -------------")
     print("Starting clustering phase...")
-
+    '''
     # Load cached data if present for the objective number of clusters
     if load_cached and os.path.isfile(os.path.join(f"{os.getcwd()}", f"data", f"{case_name}", f"cache", f"cluster_ids", f"cluster_id_{n_clusters}cl.npy")):
         print(f"Found cached data. Loading...")
@@ -551,7 +565,7 @@ def cluster_data_linkage(case_name: str, Ny: int, Nz: int,
         return cluster_id
     print("Cached data not found, generating clusters...")
     print(f"Target number of clusters: {n_clusters}")
-
+    '''
     # Normalize the input fields
     threshold -= np.min(s)
     threshold /= (np.max(s) - np.min(s))
@@ -602,7 +616,7 @@ def cluster_data_linkage(case_name: str, Ny: int, Nz: int,
     for i in range(max_iter):
         print(f"\r{(initial_number - (cluster_map.get_cluster_number() - n_clusters + 1)) / initial_number * 100:>5.2f}   "
               f"{cluster_map.get_cluster_number():<24}                                                               ", end="")
-        cluster_map.find_and_merge()
+        cluster_map.find_and_merge(eddy_id)
         if cluster_map.get_cluster_number() <= n_clusters:
             break
         if i == max_iter - 1:

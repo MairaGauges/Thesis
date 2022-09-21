@@ -392,7 +392,7 @@ class ChemicalReactorNetwork:
                     self.reactors[j].inlet.append(self.reactors[i])
                     print(f"Added {type(self.reactors[j]).__name__} {self.reactors[j].id_} as outlet to {type(self.reactors[i]).__name__} {self.reactors[i].id_}")
         # Disconnect the reactors that are connected by a mass flow less than 10% of the max mass flow, also checks if they are connected to an output
-        #changed to 1% here
+        
         temp_mass_flows = self.mass_flows.copy()
         max_mass_flow = np.max(temp_mass_flows)
         while True:
@@ -783,16 +783,18 @@ def main():
     plot_graphs = True
 
     # Load data
-    case_name = "HM1_bluff-body_flame"
+    case_name = "Sandia_flame_D"
     Ny, Nz, y, z, V, vx, vy, vz, T, rho = initialize(case_name)
     np.save('y',y)
-   
+    np.savetxt('T.npy',T)   
 
     # Read input file
     inlets, outlets, y_lim, z_lim, angle, pressure, radial_dir, axial_dir, T_threshold = parse_input(os.path.join(f"{os.getcwd()}", f"data", f"{case_name}", f"CRNB_input.dic"))
     boundary_data = get_boundary_data(case_name, [inlets[i][0] for i in range(len(inlets))])
     boundary_data = post_process_boundary_data(Ny, Nz, y, z, T, vx, vy, vz, rho, boundary_data, inlets, radial_dir, axial_dir)
-
+    print('Threshold Temp:')
+    print(T_threshold)
+    
     # Get eddy data
     # Give id 0 to cells not in an eddy, 1 to cells in the firsts eddy, 2 to the cells in the second eddy, etc...
     eddy_id = detect_eddy(case_name, Ny, Nz, y, z, vy, vz, load_cached=True, save_cache=True)
