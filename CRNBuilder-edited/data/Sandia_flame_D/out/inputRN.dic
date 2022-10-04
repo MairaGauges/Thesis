@@ -8,19 +8,19 @@ TearStream automatic
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    845.13 K
-Length         2.04520e-02 m
-Diameter       7.10057e-03 m
-Inlet_stream   8
-Outlet_stream  9
+Temperature    996.40 K
+Length         4.03588e-02 m
+Diameter       7.78520e-03 m
+Inlet_stream   7
+Outlet_stream  38
 //
 @Reactor       R1
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    1252.41 K
-Length         6.78630e-02 m
-Diameter       8.89465e-03 m
+Temperature    1404.33 K
+Length         6.23071e-02 m
+Diameter       1.02204e-02 m
 Inlet_stream   11
 Outlet_stream  12
 //
@@ -28,104 +28,104 @@ Outlet_stream  12
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    1757.00 K
-Length         1.30653e-01 m
-Diameter       3.37511e-02 m
-Inlet_stream   16
-Outlet_stream  33
+Temperature    1605.08 K
+Length         9.68063e-02 m
+Diameter       4.16041e-02 m
+Inlet_stream   17
+Outlet_stream  39
 //
 @Reactor       R3
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    2051.83 K
-Length         9.42553e-02 m
-Diameter       1.34712e-02 m
-Inlet_stream   17
+Temperature    1941.71 K
+Length         1.66403e-01 m
+Diameter       1.89533e-02 m
+Inlet_stream   18
 Outlet_stream  13
 //
 @Reactor       R4
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    1371.82 K
-Length         9.78386e-02 m
-Diameter       4.13876e-02 m
+Temperature    1191.88 K
+Length         1.18786e-01 m
+Diameter       4.80808e-02 m
 Inlet_stream   21
-Outlet_stream  34
+Outlet_stream  40
 //
 @Reactor       R5
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    873.15 K
-Length         2.82973e-01 m
-Diameter       6.48031e-02 m
+Temperature    866.60 K
+Length         1.77409e-01 m
+Diameter       6.48486e-02 m
 Inlet_stream   24
-Outlet_stream  35
+Outlet_stream  41
 //
 @Reactor       R6
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    580.44 K
-Length         1.56995e-02 m
-Diameter       5.23072e-03 m
-Inlet_stream   25
-Outlet_stream  6
+Temperature    609.93 K
+Length         1.34299e-02 m
+Diameter       6.65923e-03 m
+Inlet_stream   29
+Outlet_stream  42
 //
 @Reactor       R7
-Type           PFR
-Phase          Gas
-Energy         Isothermal
-Temperature    466.44 K
-Length         9.13462e-04 m
-Diameter       5.23062e-03 m
-Inlet_stream   29
-Outlet_stream  10
-//
-@Reactor       R8
 Type           PFR
 Phase          Gas
 Energy         Isothermal
 Temperature    944.73 K
 Length         2.62230e-04 m
 Diameter       5.65934e-03 m
-Inlet_stream   30
-Outlet_stream  26
+Inlet_stream   32
+Outlet_stream  25
+//
+@Reactor       R8
+Type           PFR
+Phase          Gas
+Energy         Isothermal
+Temperature    1902.44 K
+Length         2.01145e-02 m
+Diameter       1.42135e-02 m
+Inlet_stream   35
+Outlet_stream  14
 //
 @Reactor       R9
 Type           PFR
 Phase          Gas
 Energy         Isothermal
-Temperature    327.73 K
-Length         7.38359e-02 m
-Diameter       6.20553e-01 m
-Inlet_stream   32
-Outlet_stream  36
+Temperature    331.42 K
+Length         7.44682e-02 m
+Diameter       6.20809e-01 m
+Inlet_stream   37
+Outlet_stream  43
 //
 @Mixer         M0
 Energy         Isothermal
 Temperature    300.00 K
-Inlet_stream   6,7
-Outlet_stream  8
+Inlet_stream   5,6
+Outlet_stream  7
 //
 @Mixer         M1
 Energy         Isothermal
 Temperature    300.00 K
-Inlet_stream   9,10
+Inlet_stream   8,9,10
 Outlet_stream  11
 //
 @Mixer         M2
 Energy         Isothermal
 Temperature    300.00 K
-Inlet_stream   12,13,14,15
-Outlet_stream  16
+Inlet_stream   12,13,14,15,16
+Outlet_stream  17
 //
 @Mixer         M3
 Energy         Isothermal
 Temperature    300.00 K
-Inlet_stream   18,19,20
+Inlet_stream   19,20
 Outlet_stream  21
 //
 @Mixer         M4
@@ -137,48 +137,71 @@ Outlet_stream  24
 @Mixer         M5
 Energy         Isothermal
 Temperature    300.00 K
-Inlet_stream   26,27,28
+Inlet_stream   25,26,27,28
 Outlet_stream  29
 //
 @Mixer         M6
 Energy         Isothermal
 Temperature    300.00 K
-Inlet_stream   2,3,31
+Inlet_stream   30,31
 Outlet_stream  32
 //
+@Mixer         M7
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   33,34
+Outlet_stream  35
+//
+@Mixer         M8
+Energy         Isothermal
+Temperature    300.00 K
+Inlet_stream   2,3,36
+Outlet_stream  37
+//
 @Splitter      S0
-Inlet_stream   33
-Outlet_stream  17,0.215768480
-               18,0.784231520;
+Inlet_stream   38
+Outlet_stream  8,0.800567581
+               26,0.199432419;
 //
 @Splitter      S1
-Inlet_stream   34
-Outlet_stream  14,0.228577989
-               22,0.771422011;
+Inlet_stream   39
+Outlet_stream  9,0.018870534
+               18,0.326057659
+               19,0.594196757
+               30,0.033804719
+               33,0.027070331;
 //
 @Splitter      S2
-Inlet_stream   35
-Outlet_stream  4,0.143762386
-               19,0.170406108
-               31,0.685831506;
+Inlet_stream   40
+Outlet_stream  15,0.244191806
+               22,0.755808194;
 //
 @Splitter      S3
-Inlet_stream   36
-Outlet_stream  5,0.910472040
-               23,0.089527960;
+Inlet_stream   41
+Outlet_stream  20,0.258851169
+               36,0.741148831;
 //
 @Splitter      S4
-Inlet_stream   0
-Outlet_stream  7,0.454325335
-               25,0.433593642
-               27,0.112081023;
+Inlet_stream   42
+Outlet_stream  5,0.846597893
+               10,0.153402107;
 //
 @Splitter      S5
+Inlet_stream   43
+Outlet_stream  4,0.926266247
+               23,0.073733753;
+//
+@Splitter      S6
+Inlet_stream   0
+Outlet_stream  6,0.286195507
+               27,0.713804493;
+//
+@Splitter      S7
 Inlet_stream   1
-Outlet_stream  15,0.949990564
-               20,0.018504598
+Outlet_stream  16,0.078765821
                28,0.010859400
-               30,0.020645438;
+               31,0.020645438
+               34,0.889729341;
 //
 @Stream        0
 Phase          Gas

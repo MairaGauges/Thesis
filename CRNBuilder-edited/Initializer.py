@@ -14,7 +14,8 @@ def initialize(case_name):
     if os.path.isdir(os.path.join(path, "case")):
         print("OpenFOAM case found. Loading data directly from it...")
 
-        if os.path.isdir(os.path.join(path, 'cache')):
+        
+        '''if os.path.isdir(os.path.join(path, 'cache')):
             print("Cache found, loading it...")
             y = np.load(os.path.join(path, 'cache', 'Y.npy'))
             z = np.load(os.path.join(path, 'cache', 'Z.npy'))
@@ -28,9 +29,11 @@ def initialize(case_name):
             Ny = y.shape[0]
             Nz = y.shape[1]
 
-            return Ny, Nz, y, z, V, vx, vy, vz, T, rho
+            return Ny, Nz, y, z, V, vx, vy, vz, T, rho'''
 
         cells, T_of, U_of, rho_of, V_of, Nc = read_case(case_name, path)
+        np.save('cells.npy',cells)
+
         if os.path.isfile(os.path.join(path, "CRNB_input.dic")):
             radial_dir = -1
             axial_dir = -1

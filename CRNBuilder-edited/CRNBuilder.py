@@ -14,6 +14,7 @@ from EddyDetection import detect_eddy
 from Initializer import initialize
 from InputParser import parse_input
 from OFScraper import get_boundary_data
+from readVTK import initializeFromVTK
 
 
 class ReactorNetworkObject:
@@ -398,7 +399,7 @@ class ChemicalReactorNetwork:
         while True:
             min_mass_flow = np.min(temp_mass_flows[temp_mass_flows > 0.])
             if min_mass_flow >= 0.1 * max_mass_flow:
-                print(f"min_mass_flow >= 0.1 * max_mass_flow\n  {min_mass_flow       = :.3e} kg/s\n  {0.1 * max_mass_flow = :.3e} kg/s")
+                print(f"min_mass_flow >= 0.1* max_mass_flow\n  {min_mass_flow       = :.3e} kg/s\n  {0.1 * max_mass_flow = :.3e} kg/s")
                 break
             for i in range(self.mass_flows.shape[0]):
                 for j in range(self.mass_flows.shape[1]):
@@ -783,10 +784,16 @@ def main():
     plot_graphs = True
 
     # Load data
-    case_name = "Sandia_flame_D"
-    Ny, Nz, y, z, V, vx, vy, vz, T, rho = initialize(case_name)
-    np.save('y',y)
-    np.savetxt('T.npy',T)   
+    case_name = "HM1_bluff-body_flame"
+    
+    #Ny, Nz, y, z, V, vx, vy, vz, T, rho = initialize(case_name)
+    Ny, Nz, y, z, V, vx, vy, vz, T, rho = initializeFromVTK('/shared_home/mgauges/ValidatingResults/HM1_bluff-body_flame/','case')
+    np.save('vx.npy',vx)
+    np.save('vy.npy',vy)
+    np.save('vz.npy',vz)
+    np.save('T.npy',T) 
+    np.save('y.npy',y)    
+
 
     # Read input file
     inlets, outlets, y_lim, z_lim, angle, pressure, radial_dir, axial_dir, T_threshold = parse_input(os.path.join(f"{os.getcwd()}", f"data", f"{case_name}", f"CRNB_input.dic"))
@@ -797,7 +804,7 @@ def main():
     
     # Get eddy data
     # Give id 0 to cells not in an eddy, 1 to cells in the firsts eddy, 2 to the cells in the second eddy, etc...
-    eddy_id = detect_eddy(case_name, Ny, Nz, y, z, vy, vz, load_cached=True, save_cache=True)
+    eddy_id = detect_eddy(case_name, Ny, Nz, y, z, vy, vz, load_cached=False, save_cache=False)
 
     # Find clusters
     cluster_id = cluster_data_linkage(case_name, Ny, Nz, y, z, T, n_clusters, eddy_id, threshold=T_threshold, load_cached=True, save_cache=True, to_cut=False, rework=False)
@@ -808,9 +815,9 @@ def main():
     axial_n = get_axial_n(angle)
     my, mz, Ay, Az = get_massflow(y, z, vy, vz, rho, axial_n, y_lim, z_lim, Ny, Nz, boundary_data, radial_dir, axial_dir, inlets)
     mass_flows = get_massflow_between_clusters(Ny, Nz, my, mz, n_clusters, cluster_id)
-    np.save('my',my)
-    np.save('mz',mz)
-    np.savetxt('mass_flows',mass_flows)
+    np.save('my.npy',my)
+    np.save('mz.npy_S',mz)
+    np.save('mass_flows_S',mass_flows)
 
 
     
@@ -819,8 +826,8 @@ def main():
 
     # Initialize the reactor network
     crn = ChemicalReactorNetwork(Ny, Nz, n_clusters, cluster_id, pxr_score, T, mass_flows, inlets, outlets, axial_n, y, z, my, mz, V, vy, vz, boundary_data)
-    np.save('inlet_id',crn.inlet_id)
-    np.save('cluster_id', cluster_id)
+    np.save('outlet_id_S',crn.outlet_id)
+    np.save('cluster_id_S', cluster_id)
 
     # Generate an input.dic file to be used by NetSMOKE
     path = os.path.join(f"{os.getcwd()}", f"data", f"{case_name}")
@@ -831,19 +838,29 @@ def main():
         print("Plotting results...")
         fig = plt.figure(figsize=(15, 15))
 
-        ax = fig.add_subplot(121, aspect='equal')
+        ax = fig.add_subplot(131, aspect='equal')
         cs = ax.pcolormesh(y, z, T, cmap='jet', shading='auto')
         ax.set_title('Temperature')
         ax.set_xlabel('y')
         ax.set_ylabel('z')
         fig.colorbar(cs)
 
-        ax = fig.add_subplot(122, aspect='equal')
+        ax = fig.add_subplot(132, aspect='equal')
         cs = ax.pcolormesh(y, z, cluster_id, cmap='jet', shading='auto')
-        ax.set_title('Cluster ID')
+        ax.set_title('cluster_id')
         ax.set_xlabel('y')
         ax.set_ylabel('z')
         fig.colorbar(cs)
+
+
+        ax = fig.add_subplot(133, aspect='equal')
+        cs = ax.pcolormesh(y, z, vy, cmap='jet', shading='auto')
+        ax.set_title('vy')
+        ax.set_xlabel('y')
+        ax.set_ylabel('z')
+        fig.colorbar(cs)
+
+
 
         fig.savefig(os.path.join(f"{os.getcwd()}", f"data", f"{case_name}", f"out", f"fields.pdf"))
 
