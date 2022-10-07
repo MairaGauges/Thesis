@@ -586,7 +586,9 @@ def cluster_data_linkage(case_name: str, Ny: int, Nz: int,
     print("Starting the clustering process... (This may take a long time)")
     print(" [%]    Total number of clusters")
     initial_number = cluster_map.get_cluster_number() + 1
-    # Search for cached data that can be useful in speeding up the algorithm (by providing a starting point with less clusters)
+
+
+    '''# Search for cached data that can be useful in speeding up the algorithm (by providing a starting point with less clusters)
     if os.path.isdir(os.path.join(os.getcwd(), f"data", f"{case_name}", f"cache", f"cluster_ids")):
         path = os.path.join(os.getcwd(), f"data", f"{case_name}", f"cache", f"cluster_ids")
         n_cl_cache = get_n_cl_cache(path, n_clusters)
@@ -601,7 +603,8 @@ def cluster_data_linkage(case_name: str, Ny: int, Nz: int,
                 if i == max_iter - 1:
                     raise RuntimeError(f"Could not finish the pre-clustering algorithm within {max_iter} iterations, try changing "
                                        f"max_iter in the function cluster_data_linkage() inside Clustering.py or search for the "
-                                       f"bug that prevents the algorithm from converging.")
+                                       f"bug that prevents the algorithm from converging.")'''
+
     # Pre-process the case by merging cells with a Temperature less than T_threshold
     for i in range(max_iter):
         print(f"\r{(initial_number - (cluster_map.get_cluster_number() - n_clusters + 1)) / initial_number * 100:>5.2f}   "

@@ -2,7 +2,7 @@
 import myUtils as mU
 import numpy as np
 import pyvista as pv
-
+import math as m
 
 def initializeFromVTK(path,folderName):
 
@@ -14,7 +14,7 @@ def initializeFromVTK(path,folderName):
     sl = VTK.slice(normal='z')
 
     #create new mesh
-    x = np.arange(0,0.09,0.00014999999999999)
+    x = np.arange(0,0.09,0.0001499)
     y = np.arange(0,0.36,0.00119999)
     x,y = np.meshgrid(x,y)
     z = np.zeros(x.shape)
@@ -31,7 +31,6 @@ def initializeFromVTK(path,folderName):
     Coordinates = cellCenters.points
     pT = interpolated.get_array('T') 
     pU = interpolated.get_array('U')
-    pV= interpolated.get_array('V')
     prho  = interpolated.get_array('rho')
 
     pz = []
@@ -39,7 +38,8 @@ def initializeFromVTK(path,folderName):
     for i in range(len(Coordinates)):
         py.append(Coordinates[i][0])
         pz.append(Coordinates[i][1])
-
+   
+    #Nz and Ny still hardcoded!
     Nz= 300
     Ny= 600
     pvy = []
@@ -71,11 +71,15 @@ def initializeFromVTK(path,folderName):
             z[i,j] = pz[counter]
             T[i,j] = pT[counter]
             rho[i,j] = prho[counter]
-            V[i,j] = pV[counter]
             vz[i,j] = pvz[counter]
             vy[i,j] = pvy[counter]
             vx[i,j] = pvx[counter]         
- 
+            bounds = interpolated.cell_bounds(counter)
+            ri = bounds[0]
+            ro = bounds[1]
+            h = bounds[3]-bounds[2]
+            V[i,j] = m.pi*h*(ro**2 - ri**2)
+
 
 
     return Ny, Nz, y, z, V, vx, vy, vz, T, rho
@@ -84,15 +88,18 @@ def initializeFromVTK(path,folderName):
 
 
 '''
-counter = 0
-point = Coordinates[0][0]
-for i in range(len(Coordinates)):
-    if point == Coordinates[i][0]:
-        counter+=1
+Ny, Nz, y, z, V, vx, vy, vz, T, rho,grid, sl = initializeFromVTK('/shared_home/mgauges/ValidatingResults/HM1_bluff-body_flame/','case')
 
-print(counter)
+
+p = pv.Plotter()
+
+p.add_mesh(grid, show_edges = True, opacity = 0.5)
+p.add_mesh(sl, color = 'white')
+p.show()
+
 
 '''
+
 
 
 '''

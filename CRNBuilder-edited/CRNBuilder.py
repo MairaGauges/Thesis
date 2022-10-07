@@ -1,10 +1,9 @@
 from __future__ import annotations  # This is used to enable type hinting in python versions from 3.7 to 3.9 (it is built-in in 3.10 and above)
-
-from math import pi, sqrt, prod
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import sys
+from math import pi, sqrt, prod
 
 import networkx as nx
 
@@ -177,7 +176,7 @@ class ChemicalReactorNetwork:
     def __init__(self,
                  Ny, Nz, n_clusters, cluster_id, pxr_score, T,
                  mass_flows, inlets, outlets, axial_n, y, z, my,
-                 mz, V, vy, vz, boundary_data):
+                 mz, V, vy, vz, boundary_data,dim2):
         self.inlet_id = np.zeros((Ny, Nz), dtype=int)
         self.outlet_id = np.zeros((Ny, Nz), dtype=int)
         self.reactors = []
@@ -191,7 +190,7 @@ class ChemicalReactorNetwork:
 
         self.generate_inlets(Ny, Nz, y, z, T, my, mz, inlets, cluster_id, boundary_data)
         self.generate_outlets(Ny, Nz, y, z, outlets, my, mz, cluster_id, n_clusters)
-        self.generate_reactors(Ny, Nz, n_clusters, cluster_id, pxr_score, T, axial_n, V, vy, vz, y, z)
+        self.generate_reactors(Ny, Nz, n_clusters, cluster_id, pxr_score, T, axial_n, V, vy, vz, y, z,dim2)
         self.generate_splitters()
         self.generate_mixers()
         # Merge all lists in a single object list
@@ -338,8 +337,8 @@ class ChemicalReactorNetwork:
             print('mass_flowrate outlet')
             print(mass_flowrate)
 
-    def generate_reactors(self, Ny, Nz, n_clusters, cluster_id, pxr_score, T, axial_n, V, vy, vz, y, z):
-        cluster_volumes = get_cluster_volume(Ny, Nz, V, n_clusters, cluster_id, axial_n)
+    def generate_reactors(self, Ny, Nz, n_clusters, cluster_id, pxr_score, T, axial_n, V, vy, vz, y, z,dim2):
+        cluster_volumes = get_cluster_volume(Ny, Nz, V, n_clusters, cluster_id, axial_n,dim2)
         for n in range(n_clusters):
             # Get the Temperature of the reactor
             T_mean = 0.
@@ -398,7 +397,7 @@ class ChemicalReactorNetwork:
         max_mass_flow = np.max(temp_mass_flows)
         while True:
             min_mass_flow = np.min(temp_mass_flows[temp_mass_flows > 0.])
-            if min_mass_flow >= 0.1 * max_mass_flow:
+            if min_mass_flow >= 0.01 * max_mass_flow:
                 print(f"min_mass_flow >= 0.1* max_mass_flow\n  {min_mass_flow       = :.3e} kg/s\n  {0.1 * max_mass_flow = :.3e} kg/s")
                 break
             for i in range(self.mass_flows.shape[0]):
@@ -553,7 +552,7 @@ def generate_input_dic(crn, path, pressure):
                 f"{crn_object_data}\n\n\n")
 
 
-def get_massflow(y, z, vy, vz, rho, axial_n, y_lim, z_lim, Ny, Nz, boundary_data, radial_dir, axial_dir, inlets):
+def get_massflow(y, z, vy, vz, rho, axial_n, y_lim, z_lim, Ny, Nz, boundary_data, radial_dir, axial_dir, inlets, dim2):
     my = np.empty(y.shape, dtype=float)
     mz = np.empty(y.shape, dtype=float)
     Ay = np.empty(y.shape, dtype=float)
@@ -577,10 +576,19 @@ def get_massflow(y, z, vy, vz, rho, axial_n, y_lim, z_lim, Ny, Nz, boundary_data
                 z2 = (z[i, j + 1] + z[i, j]) / 2
             else:
                 z2 = z_lim[1]
-            Ay[i, j] = 2 * pi / axial_n * y[i, j] * (z2 - z1)
-            Az[i, j] = pi / axial_n * (y2 * y2 - y1 * y1)
+            '''if 2dimensional VTK data as input the massflow is not calculated for the cell per wedge but instead the entire 3d domain. If a wedge is given as input data then the massflow is only calculated for the wedge and not entire cylinder domain. might be a problem since Volume for reactors consideres entire domain '''
+
+            if dim2:
+                Ay[i, j] = 2 *pi*y[i, j] * (z2 - z1)
+                Az[i, j] = pi* (y2 * y2 - y1 * y1)
+            else:
+                Ay[i, j] = 2 * pi / axial_n * y[i, j] * (z2 - z1)
+                Az[i, j] = pi / axial_n * (y2 * y2 - y1 * y1)
+
             my[i, j] = rho[i, j] * vy[i, j] * Ay[i, j]
             mz[i, j] = rho[i, j] * vz[i, j] * Az[i, j]
+
+
     for n in range(len(inlets)):
         inlet = inlets[n][0]
         boundary_data[inlet]['Ay'] = np.zeros(boundary_data[inlet]['C'].shape[0], dtype=float)
@@ -636,8 +644,21 @@ def get_massflow(y, z, vy, vz, rho, axial_n, y_lim, z_lim, Ny, Nz, boundary_data
             else:
                 z2 = z_lim[1]
             # print(f"{inlet} : {y2 = }, {y1 = }, {y2 - y1 = }")
-            boundary_data[inlet]['Ay'][i] = 2 * pi / axial_n * y[ind] * (z2 - z1)
-            boundary_data[inlet]['Az'][i] = pi / axial_n * (y2 * y2 - y1 * y1)
+
+            if dim2:           
+                boundary_data[inlet]['Ay'][i] = 2 * pi* y[ind] * (z2 - z1)
+                boundary_data[inlet]['Az'][i] = pi* (y2 *y2 - y1 * y1)
+
+
+            else:
+                boundary_data[inlet]['Az'][i] = pi * (y2 * y2 - y1 * y1)
+                boundary_data[inlet]['Ay'][i] = 2 * pi * y[ind] * (z2 - z1)
+
+            #else:
+                #boundary_data[inlet]['Ay'][i] = 2 * pi / axial_n * y[ind] * (z2 - z1)
+                #boundary_data[inlet]['Az'][i] = pi / axial_n * (y2 * y2 - y1 * y1)
+
+
             boundary_data[inlet]['my'][i] = boundary_data[inlet]['rho'][i] * boundary_data[inlet]['U'][i, radial_dir] * boundary_data[inlet]['Ay'][i]
             boundary_data[inlet]['mz'][i] = boundary_data[inlet]['rho'][i] * boundary_data[inlet]['U'][i, axial_dir] * boundary_data[inlet]['Az'][i]
     print(f'{np.sum(boundary_data["fuelinlet"]["Az"]) = }')
@@ -665,12 +686,16 @@ def get_axial_n(d):
     return n
 
 
-def get_cluster_volume(Ny, Nz, V, n_clusters, cluster_id, axial_n):
+def get_cluster_volume(Ny, Nz, V, n_clusters, cluster_id, axial_n,dim2):
     cluster_volumes = np.zeros(n_clusters, dtype=float)
     for i in range(Ny):
         for j in range(Nz):
             cluster_volumes[cluster_id[i, j]] += V[i, j]
-    return cluster_volumes * axial_n
+    if not dim2:
+        return cluster_volumes*axial_n
+        #return cluster_volumes
+    if dim2:
+        return cluster_volumes
 
 
 def get_PFR_length(Ny, Nz, vy, vz, cluster_id, pfr_id, y, z):
@@ -782,17 +807,15 @@ def main():
         print(f"Objective number of reactors: {n_clusters}")
 
     plot_graphs = True
-
+    dim2 = False
     # Load data
     case_name = "HM1_bluff-body_flame"
     
-    #Ny, Nz, y, z, V, vx, vy, vz, T, rho = initialize(case_name)
-    Ny, Nz, y, z, V, vx, vy, vz, T, rho = initializeFromVTK('/shared_home/mgauges/ValidatingResults/HM1_bluff-body_flame/','case')
-    np.save('vx.npy',vx)
-    np.save('vy.npy',vy)
-    np.save('vz.npy',vz)
-    np.save('T.npy',T) 
-    np.save('y.npy',y)    
+    if not dim2:
+        Ny, Nz, y, z, V, vx, vy, vz, T, rho = initialize(case_name)
+
+    if dim2:
+        Ny, Nz, y, z, V, vx, vy, vz, T, rho = initializeFromVTK('/shared_home/mgauges/ValidatingResults/HM1_bluff-body_flame/','case')
 
 
     # Read input file
@@ -813,7 +836,7 @@ def main():
 
     # Get mass flows
     axial_n = get_axial_n(angle)
-    my, mz, Ay, Az = get_massflow(y, z, vy, vz, rho, axial_n, y_lim, z_lim, Ny, Nz, boundary_data, radial_dir, axial_dir, inlets)
+    my, mz, Ay, Az = get_massflow(y, z, vy, vz, rho, axial_n, y_lim, z_lim, Ny, Nz, boundary_data, radial_dir, axial_dir, inlets,dim2)
     mass_flows = get_massflow_between_clusters(Ny, Nz, my, mz, n_clusters, cluster_id)
     np.save('my.npy',my)
     np.save('mz.npy_S',mz)
@@ -825,7 +848,7 @@ def main():
     pxr_score, clusters_sag_ang, var_sag_ang = get_pxr_score(Ny, Nz, y, z, vy, vz, cluster_id, extended_output=True)
 
     # Initialize the reactor network
-    crn = ChemicalReactorNetwork(Ny, Nz, n_clusters, cluster_id, pxr_score, T, mass_flows, inlets, outlets, axial_n, y, z, my, mz, V, vy, vz, boundary_data)
+    crn = ChemicalReactorNetwork(Ny, Nz, n_clusters, cluster_id, pxr_score, T, mass_flows, inlets, outlets, axial_n, y, z, my, mz, V, vy, vz, boundary_data, dim2)
     np.save('outlet_id_S',crn.outlet_id)
     np.save('cluster_id_S', cluster_id)
 
@@ -838,24 +861,16 @@ def main():
         print("Plotting results...")
         fig = plt.figure(figsize=(15, 15))
 
-        ax = fig.add_subplot(131, aspect='equal')
+        ax = fig.add_subplot(121, aspect='equal')
         cs = ax.pcolormesh(y, z, T, cmap='jet', shading='auto')
         ax.set_title('Temperature')
         ax.set_xlabel('y')
         ax.set_ylabel('z')
         fig.colorbar(cs)
 
-        ax = fig.add_subplot(132, aspect='equal')
+        ax = fig.add_subplot(122, aspect='equal')
         cs = ax.pcolormesh(y, z, cluster_id, cmap='jet', shading='auto')
         ax.set_title('cluster_id')
-        ax.set_xlabel('y')
-        ax.set_ylabel('z')
-        fig.colorbar(cs)
-
-
-        ax = fig.add_subplot(133, aspect='equal')
-        cs = ax.pcolormesh(y, z, vy, cmap='jet', shading='auto')
-        ax.set_title('vy')
         ax.set_xlabel('y')
         ax.set_ylabel('z')
         fig.colorbar(cs)
